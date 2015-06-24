@@ -1,0 +1,20 @@
+#chech mysql backup is running or not & send status via email notification
+#If not 
+
+if ! /usr/bin/mysqldump -u=<%= node[:database][:user]%> -h =<%= node[:host] %> -p=<%= node[:database][:password] %> <%= node[:database][:name] %> | gzip > /root/db_backup/mysql/<%= node[:project][:name] %>_`date '+%Y-%m-%d-%H-%M'`.sql.gz; then
+  /bin/echo "#########################################################" >> /var/log/mysql_backup.log
+  /bin/echo "Live Mysql backup failed on `date +%d-%m-%Y-%H-%M`" >> /var/log/mysql_backup.log
+
+#If yes
+else
+  /bin/echo "#########################################################" >> /var/log/mysql_backup.log
+  /bin/echo "Live Mysql backup taken successfully on `date +%d-%m-%Y-%H-%M`" >> /var/log/mysql_backup.log
+
+fi
+# Backup rotation
+
+find /root/mysql_backup/ -mmin +<%= node[:rotation_days] %> | xargs rm -vf
+
+#End of script
+
+

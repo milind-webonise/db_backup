@@ -1,0 +1,18 @@
+if ! PGPASSWORD="<%= node[:database][:password] %>" pg_dump -U <%= node[:database][:user] %> -h=<%= node[:host] %> <%= node[:database][:name]%>  | gzip > /root/db_backup/postgres/<%= node[:project][:name]%>_`date '+%Y-%m-%d-%H-%M'`.sql.gz; then
+  /bin/echo "#########################################################" >> /var/log/postgres_backup.log
+  /bin/echo "Live Postgres backup failed on `date +%d-%m-%Y-%H-%M`" >> /var/log/postgres_backup.log
+
+#If yes
+else
+  /bin/echo "#########################################################" >> /var/log/postgres_backup.log
+  /bin/echo "Live Postgres backup taken successfully on `date +%d-%m-%Y-%H-%M`" >> /var/log/postgres_backup.log
+
+fi
+
+
+###################Backup Rotation for 10 days#############################################
+
+find /root/db_backup/postgres/ -mmin +<%= node[:rotation_days] %> | xargs rm -vf
+
+
+
